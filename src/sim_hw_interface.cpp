@@ -61,6 +61,8 @@ void SimHWInterface::init()
 void SimHWInterface::read(ros::Duration &elapsed_time)
 {
   // No need to read since our write() command populates our state for us
+  ROS_INFO_STREAM_THROTTLE(0.1, std::endl
+                                  << printStateHelper());
 }
 
 void SimHWInterface::write(ros::Duration &elapsed_time)
@@ -82,11 +84,17 @@ void SimHWInterface::write(ros::Duration &elapsed_time)
     switch (joint_mode)
     {
       case 0:  // hardware_interface::MODE_POSITION:
-        positionControlSimulation(elapsed_time, joint_id);
+
+
+        ROS_INFO_STREAM_THROTTLE(0.1, std::endl
+                                  << printCommandHelper());
+        //positionControlSimulation(elapsed_time, joint_id);
+        velocityControlSimulation(elapsed_time, joint_id);
+
         break;
 
       case 1:  // hardware_interface::MODE_VELOCITY:
-        ROS_ERROR_STREAM_NAMED(name_, "Velocity not implemented yet");
+        ROS_ERROR_STREAM_THROTTLE(5, "Velocity not implemented yet");
 
         /*
         TODO: remove VELOCITY_STEP_FACTOR
@@ -103,7 +111,7 @@ void SimHWInterface::write(ros::Duration &elapsed_time)
         break;
 
       case 2:  // hardware_interface::MODE_EFFORT:
-        ROS_ERROR_STREAM_NAMED(name_, "Effort not implemented yet");
+        ROS_ERROR_STREAM_THROTTLE(5, "Effort not implemented yet");
         break;
     }
   }
@@ -138,6 +146,25 @@ void SimHWInterface::positionControlSimulation(ros::Duration &elapsed_time, cons
 
   // Save last position
   joint_position_prev_[joint_id] = joint_position_[joint_id];
+}
+
+void SimHWInterface::velocityControlSimulation(ros::Duration &elapsed_time, const std::size_t joint_id)
+{
+
+  //limit velocity
+  //const double velocity_limit = joint_velocity_limits_[joint_id] * elapsed_time.toSec();
+  //const double limited_velocity = std::max(std::min(joint_velocity_command_[joint_id], velocity_limit), -velocity_limit);
+
+  //set velocity
+
+  //joint_velocity_[joint_id] = limited_velocity;
+
+  joint_velocity_[joint_id] = joint_velocity_command_[joint_id];
+
+  //set position
+  joint_position_[joint_id] += joint_velocity_[joint_id] * elapsed_time.toSec();
+
+  
 }
 
 }  // namespace

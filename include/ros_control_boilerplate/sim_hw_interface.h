@@ -72,6 +72,9 @@ protected:
   /** \brief Basic model of system for position control */
   virtual void positionControlSimulation(ros::Duration &elapsed_time, const std::size_t joint_id);
 
+  /** \brief Basic model of system for velocity control */
+  virtual void velocityControlSimulation(ros::Duration &elapsed_time, const std::size_t joint_id);
+
   // Name of this class
   std::string name_;
 
