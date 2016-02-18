@@ -42,8 +42,36 @@
 
 #include <ros_control_boilerplate/generic_hw_interface.h>
 
+#include "serial/serial.h"
+
+
+using std::string;
+using std::exception;
+using std::cout;
+using std::cerr;
+using std::endl;
+using std::vector;
+
 namespace rrbot_control
 {
+
+#pragma pack(1)
+struct InputMessageFormat {
+    unsigned char header1;
+    unsigned char header2;
+    double pid_output;
+    int axis_1_direction;
+    int axis_1_position;
+
+};
+#pragma pack(1)
+struct OutputMessageFormat {
+    unsigned char header1;
+    unsigned char header2;
+    double joint_1_speed;
+    unsigned char linefeed;
+};
+#pragma pack(0)
 
 /// \brief Hardware interface for a robot
 class RRBotHWInterface : public ros_control_boilerplate::GenericHWInterface
@@ -63,6 +91,10 @@ public:
 
   /** \breif Enforce limits for all values before writing */
   virtual void enforceLimits(ros::Duration &period);
+
+  void printStdStringAsHex(std::string &string);
+
+  serial::Serial my_serial;
 
 };  // class
 
