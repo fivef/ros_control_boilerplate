@@ -45,8 +45,8 @@
 
 namespace ros_control_boilerplate
 {
-static const double SEC_PER_TRAJ_POINT = 5.0;  // time between points
-static const std::size_t TRAJ_POINTS = 10;     // number of points to generate
+static const double SEC_PER_TRAJ_POINT = 1.0;  // time between points
+static const std::size_t TRAJ_POINTS = 4;     // number of points to generate
 
 class TestTrajectory
 {
@@ -131,6 +131,27 @@ public:
     trajectory.header.stamp = ros::Time::now();
     trajectory.joint_names = joint_names;
 
+    trajectory.points.resize(TRAJ_POINTS);
+
+    trajectory.points[0].positions.resize(joint_names.size());
+    trajectory.points[0].positions[0] = 0.0;
+    trajectory.points[0].time_from_start = ros::Duration(0 * SEC_PER_TRAJ_POINT);
+
+    trajectory.points[1].positions.resize(joint_names.size());
+    trajectory.points[1].positions[0] = 3.14;
+    trajectory.points[1].time_from_start = ros::Duration(1 * SEC_PER_TRAJ_POINT);
+
+    trajectory.points[2].positions.resize(joint_names.size());
+    trajectory.points[2].positions[0] = -3.14;
+    trajectory.points[2].time_from_start = ros::Duration(2 * SEC_PER_TRAJ_POINT);
+
+    trajectory.points[3].positions.resize(joint_names.size());
+    trajectory.points[3].positions[0] = 0.0;
+    trajectory.points[3].time_from_start = ros::Duration(3 * SEC_PER_TRAJ_POINT);
+
+    /*
+
+    // random trajectory
     // Create trajectory with x points
     trajectory.points.resize(TRAJ_POINTS);
     for (std::size_t i = 0; i < TRAJ_POINTS; ++i)
@@ -143,6 +164,7 @@ public:
         trajectory.points[i].time_from_start = ros::Duration(i * SEC_PER_TRAJ_POINT);
       }
     }
+    */
 
     return trajectory;
   }
