@@ -41,7 +41,7 @@
 #define RRBOT_CONTROL__RRBOT_HW_INTERFACE_H
 
 #include <ros_control_boilerplate/generic_hw_interface.h>
-
+#include <math.h>
 #include "serial/serial.h"
 
 
@@ -57,18 +57,41 @@ namespace rrbot_control
 
 #pragma pack(1)
 struct InputMessageFormat {
-    unsigned char header1;
-    unsigned char header2;
-    double pid_output;
-    int axis_1_direction;
-    int axis_1_position;
-
+    unsigned char header1; //fixed header
+    unsigned char header2; //fixed header
+    double unused1;
+    double unused2;
+    double unused3;
+    double velocity_control_pid_output;
+    int unused4;
+    int joint_1_encoder_position;
+    int joint_1_speed;
+    int unused5;
+    int joint_2_encoder_position;
+    int joint_2_speed;
+    int joint_1_error;
+    int encoder_1_index_count;
+    int encoder_2_index_count;
+    int reset_state;
+    int unused6;
+    int unused7;
+    int unused8;
+    int loopback;
 };
-#pragma pack(1)
+
 struct OutputMessageFormat {
-    unsigned char header1;
-    unsigned char header2;
-    double joint_1_speed;
+    unsigned char header1; //fixed header
+    unsigned char header2; //fixed header
+    double joint_1_direct_speed_set; //directly sets the speed if not 0 (overrides pid loop and so the setpoint)
+    double joint_2_direct_speed_set;
+    double p; //continuously set the pid values
+    double i;
+    double d;
+    int joint_1_speed_setpoint; //this ist the actual setpoint!!!
+    int joint_2_speed_setpoint;
+    int home_axis; //not implemented yet?
+    int reset_encoders; //set to 1 to reset and then back to 0
+    int loopback;
     unsigned char linefeed;
 };
 #pragma pack(0)
@@ -92,9 +115,15 @@ public:
   /** \breif Enforce limits for all values before writing */
   virtual void enforceLimits(ros::Duration &period);
 
-  void printStdStringAsHex(std::string &string);
+  /** \brief prints a std::string as hexadecimal string */
+  std::string stringToHexStream(std::string &string);
 
   serial::Serial my_serial;
+
+  /** \brief on test motor one rotation is 7000 encoder impulses */
+  int encoder_steps_per_rotation = 7000;
+
+  double radians_per_encoder_step = M_PI/encoder_steps_per_rotation;
 
 };  // class
 
