@@ -92,7 +92,8 @@ struct OutputMessageFormat {
     int home_axis; //not implemented yet?
     int reset_encoders; //set to 1 to reset and then back to 0
     int loopback;
-    unsigned char linefeed;
+    unsigned char terminator1;
+    unsigned char terminator2;
 };
 #pragma pack(0)
 

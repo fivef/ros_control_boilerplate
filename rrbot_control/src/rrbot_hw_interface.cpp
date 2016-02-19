@@ -54,7 +54,7 @@ RRBotHWInterface::RRBotHWInterface(ros::NodeHandle &nh, urdf::Model *urdf_model)
 
   //init read and write timeout to 1 second, inter byte timeout is set to max (disabled)
   //this timeout needs to be set, because if not write doesn't work. No bytes are written. An there is no exception.
-  serial::Timeout timeout_struct = serial::Timeout::simpleTimeout(1000);
+  serial::Timeout timeout_struct = serial::Timeout::simpleTimeout(5000);
   my_serial.setTimeout(timeout_struct);
   my_serial.open();
 
@@ -208,22 +208,23 @@ void RRBotHWInterface::write(ros::Duration &elapsed_time)
 
   //fill out the message
   //radians/second to encoder_steps/second
-  output_message.joint_1_speed_setpoint = joint_velocity_command_[0];
+  output_message.joint_1_speed_setpoint = (int)joint_velocity_command_[0];
   output_message.joint_2_speed_setpoint = 0;
 
   //other stuff
-  output_message.header1 = 14;
-  output_message.header2 = 14;
+  output_message.header1 = 0x7E;
+  output_message.header2 = 0x7E;
   output_message.joint_1_direct_speed_set = 0;
   output_message.joint_2_direct_speed_set = 0;
-  output_message.p = 1;
+  output_message.p = 0.01;
   output_message.i = 0;
   output_message.d = 0;
   output_message.home_axis = 0;
   output_message.reset_encoders = 0;
   output_message.loopback = 0; //TODO is the loopback needed?
 
-  output_message.linefeed = '\n';
+  output_message.terminator1 = 0x03;
+  output_message.terminator2 = 0x03;
 
 
   char output_message_string[sizeof(OutputMessageFormat)]; //(reinterpret_cast<char const*>(output_message), sizeof(OutputMessageFormat));
