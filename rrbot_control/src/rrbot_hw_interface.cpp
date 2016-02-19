@@ -51,6 +51,11 @@ RRBotHWInterface::RRBotHWInterface(ros::NodeHandle &nh, urdf::Model *urdf_model)
   //string port("/dev/ttyS0");
 
   my_serial.setPort(port);
+
+  //init read and write timeout to 1 second, inter byte timeout is set to max (disabled)
+  //this timeout needs to be set, because if not write doesn't work. No bytes are written. An there is no exception.
+  serial::Timeout timeout_struct = serial::Timeout::simpleTimeout(1000);
+  my_serial.setTimeout(timeout_struct);
   my_serial.open();
 
     cout << "Is the serial port open?";
@@ -211,7 +216,7 @@ void RRBotHWInterface::write(ros::Duration &elapsed_time)
   output_message.header2 = 14;
   output_message.joint_1_direct_speed_set = 0;
   output_message.joint_2_direct_speed_set = 0;
-  output_message.p = 0.01;
+  output_message.p = 1;
   output_message.i = 0;
   output_message.d = 0;
   output_message.home_axis = 0;
@@ -227,8 +232,7 @@ void RRBotHWInterface::write(ros::Duration &elapsed_time)
   memcpy(output_message_string, (unsigned char *) &output_message, sizeof(OutputMessageFormat));
 
 
-  //std::string out_string(output_message_string, sizeof(OutputMessageFormat));
-  std::string out_string("test");
+  std::string out_string(output_message_string, sizeof(OutputMessageFormat));
 
   ROS_DEBUG_STREAM_NAMED("sent_bytes_in_hex", std::endl
                                   << "Written bytes in hex: "
@@ -243,9 +247,13 @@ void RRBotHWInterface::write(ros::Duration &elapsed_time)
                                   << "\noutput_message_struct_size: "
                                   << sizeof(OutputMessageFormat)
                                   << "\n joint_1 velocity: "
-                                  << joint_velocity_command_[0]
+                                  << output_message.joint_1_speed_setpoint
                                   << "\n# bytes written: "
-                                  << bytes_written);
+                                  << bytes_written
+                                  );
+
+  //additional linefeed
+  //my_serial.write("\n");
 
   /*TODO Exception handling
    * \throw serial::PortNotOpenedException
