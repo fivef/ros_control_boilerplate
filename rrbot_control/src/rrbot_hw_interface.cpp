@@ -54,7 +54,7 @@ RRBotHWInterface::RRBotHWInterface(ros::NodeHandle &nh, urdf::Model *urdf_model)
 
   //init read and write timeout to 1 second, inter byte timeout is set to max (disabled)
   //this timeout needs to be set, because if not write doesn't work. No bytes are written. An there is no exception.
-  serial::Timeout timeout_struct = serial::Timeout::simpleTimeout(5000);
+  serial::Timeout timeout_struct = serial::Timeout::simpleTimeout(2000);
   my_serial.setTimeout(timeout_struct);
   my_serial.open();
 
@@ -188,8 +188,8 @@ void RRBotHWInterface::read(ros::Duration &elapsed_time)
 
   
 
-  //ROS_INFO_STREAM_THROTTLE(0.1, std::endl
-   //                              << printStateHelper());
+  ROS_DEBUG_STREAM_NAMED("received_positions", std::endl
+                            << printStateHelper());
 
 
 }
@@ -201,7 +201,7 @@ void RRBotHWInterface::write(ros::Duration &elapsed_time)
   // Safety
   enforceLimits(elapsed_time);
 
-  ROS_DEBUG_STREAM_THROTTLE(0.1, std::endl
+  ROS_DEBUG_STREAM_NAMED("command_to_send", std::endl
                                   << printCommandHelper());
 
   OutputMessageFormat output_message;
